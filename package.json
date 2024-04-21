@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.11.5"
+  },
+  "scripts": {
+    "start": "node node_server.js",
+    "hello": "echo 'hello world'"
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
+}
