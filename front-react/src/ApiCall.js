@@ -17,7 +17,6 @@ const params = {
 const range = (start, stop, step) =>
 	Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
 
-
 async function apiCall() {
 	const url = "https://api.open-meteo.com/v1/forecast";
 	const responses = await fetchWeatherApi(url, params);
@@ -40,10 +39,9 @@ async function apiCall() {
 	for (const [name, index] of Object.entries(variableIndices)) {
 		theData[name] = hourly.variables(index).valuesArray();
 	}
-	
+
 	return theData;
 }
-
 
 function dataToJson(data) {
 	let json = {};
