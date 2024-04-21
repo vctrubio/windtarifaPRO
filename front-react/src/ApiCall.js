@@ -21,7 +21,7 @@ async function apiCall() {
 	const url = "https://api.open-meteo.com/v1/forecast";
 	const responses = await fetchWeatherApi(url, params);
 	const response = responses[0];
-
+	
 	const utcOffsetSeconds = response.utcOffsetSeconds();
 
 	const hourly = response.hourly();

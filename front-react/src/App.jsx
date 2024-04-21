@@ -11,6 +11,8 @@ function App() {
   const [date, setDate] = useState(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }));
   const [time, setTime] = useState(new Date().getHours());
 
+  window.row = rows;
+  
   const routes = [
     { path: '/wind', element: <ViewAll rows={rows} date={date} time={time} /> },
     { path: '/', element: <FrontPage rows={rows} date={date} time={time}/> },
