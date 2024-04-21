@@ -55,27 +55,27 @@ function showRow(row) {
   );
 }
 
-
 function App() {
   const [rows, setRows] = useState({});
   const [date, setDate] = useState(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }));
   const [time, setTime] = useState(new Date().getHours());
-
+  
   useEffect(() => {
     axios.get('http://localhost:3000')
-      .then(response => {
+    .then(response => {
         console.log('response status to api: ', response.status)
         setRows(response.data);
       })
       .catch(error => {
         console.error('Error fetching rows', error);
       });
-  }, []);
-
-  window.rows = rows;
-  window.date = date;
-  window.time = time;
-
+    }, []);
+    
+    window.rows = rows;
+    window.date = date;
+    window.time = time;
+    
+  const dayLightSaving = 22;
   return (
     <div className='d-flex justify-content-start flex-row' >
       <h1>Wind Tarifa</h1>
@@ -84,7 +84,7 @@ function App() {
       {rows[date] &&
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', margin: '0px 10px' }}>
           {
-            [...Array(5)].map((_, i) => showRow(rows[date][time + i]))
+            [...Array(Math.min(5, dayLightSaving - time))].map((_, i) => showRow(rows[date][time + i]))
           }
         </div>
       }
