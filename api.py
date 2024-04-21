@@ -41,7 +41,8 @@ def get_hourly(hourly):
         variable_values = hourly.Variables(index).ValuesAsNumpy()
         data[name] = variable_values
     df = pd.DataFrame(data)
-    
+    print(df)
+     
     hourly_data = {"date": pd.date_range(
         start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
         end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),

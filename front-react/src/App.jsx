@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { returnDataJson } from './ApiCall.js'
 import './App.css'
 
 function formatKey(key) {
@@ -60,10 +60,9 @@ function App() {
   const [time, setTime] = useState(new Date().getHours());
 
   useEffect(() => {
-    axios.get('http://localhost:3000')
-      .then(response => {
-        console.log('response status to api: ', response.status)
-        setRows(response.data);
+    returnDataJson()
+      .then(data => {
+        setRows(data);
       })
       .catch(error => {
         console.error('Error fetching rows', error);
@@ -71,7 +70,7 @@ function App() {
   }, []);
 
   window.rows = rows;
-  window.date = date;
+  window.dd = date;
   window.time = time;
 
   const dayLightSaving = 22;
