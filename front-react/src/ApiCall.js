@@ -39,6 +39,7 @@ async function apiCall() {
 	for (const [name, index] of Object.entries(variableIndices)) {
 		theData[name] = hourly.variables(index).valuesArray();
 	}
+	console.log('calling...')
 
 	return theData;
 }
