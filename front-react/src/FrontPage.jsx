@@ -2,6 +2,7 @@ import { showRow } from './Utils.jsx'
 
 export function FrontPage({ rows, date, time }) {
     const dayLightSaving = 22;
+    window.r = rows
     return (
         <div className='d-flex justify-content-start flex-row' >
             <h1>Wind Tarifa</h1>
@@ -12,7 +13,7 @@ export function FrontPage({ rows, date, time }) {
                     {
                         [...Array(2)].map((_, i) =>
                             <div key={i}>
-                                {showRow(rows[date][time + i])}
+                                {time + i < 24 && showRow(rows[date][time + i])}
                             </div>
                         )
                     }

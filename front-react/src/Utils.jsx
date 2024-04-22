@@ -13,7 +13,9 @@ export function showRow(row) {
     const windSData = [];
     const temperatureData = [];
     const rainData = [];
+    
     const cloudData = [];
+    console.log('hour debugm , ', row.t_hour)
     const time = row.t_hour;
 
     Object.entries(row)
