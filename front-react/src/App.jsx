@@ -7,6 +7,7 @@ import './App.css'
 
 
 function App() {
+  console.log('App.js')
   const [rows, setRows] = useState({});
   const [date, setDate] = useState(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }));
   const [time, setTime] = useState(new Date().getHours());
@@ -29,13 +30,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {routes.map((route) => (
-          <Route key={route.path} {...route} />
-        ))}
-      </Routes>
-    </BrowserRouter>
+    <FrontPage rows={rows} date={date} time={time}/>
   );
 }
 
