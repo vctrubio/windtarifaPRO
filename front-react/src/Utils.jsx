@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react'
-
 function formatKey(key) {
     return key
         .replace(/_/g, ' ')
@@ -15,7 +13,6 @@ export function showRow(row) {
     const rainData = [];
     
     const cloudData = [];
-    console.log('hour debugm , ', row.t_hour)
     const time = row.t_hour;
 
     Object.entries(row)
