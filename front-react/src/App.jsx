@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { returnDataJson } from './ApiCall.js'
 import { ViewAll } from './ForAllPage.jsx'
 import { FrontPage } from './FrontPage.jsx'
+import ErrorPage from "./error-page.jsx";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
 
@@ -13,10 +14,17 @@ function App() {
   const [time, setTime] = useState(new Date().getHours());
 
   window.row = rows;
-  
+
   const routes = [
-    { path: '/wind', element: <ViewAll rows={rows} date={date} time={time} /> },
-    { path: '/', element: <FrontPage rows={rows} date={date} time={time}/> },
+    {
+      path: '/wind',
+      element: <ViewAll rows={rows} date={date} time={time} />,
+    },
+    {
+      path: '/',
+      element: <FrontPage rows={rows} date={date} time={time} />
+    },
+    { path: '*', element: <ErrorPage /> }, // This will match any path that hasn't been matched by previous routes
   ];
 
   useEffect(() => {
