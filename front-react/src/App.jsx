@@ -17,12 +17,12 @@ function App() {
 
   const routes = [
     {
-      path: '/wind',
-      element: <ViewAll rows={rows} date={date} time={time} />,
-    },
-    {
       path: '/',
       element: <FrontPage rows={rows} date={date} time={time} />
+    },
+    {
+      path: '/wind',
+      element: <ViewAll rows={rows} date={date} time={time} />,
     },
     { path: '*', element: <ErrorPage /> }, // This will match any path that hasn't been matched by previous routes
   ];
