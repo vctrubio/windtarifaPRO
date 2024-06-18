@@ -1,24 +1,56 @@
-import { showRow } from './Utils.jsx'
+import React, { useEffect, useState } from 'react';
+import { showRow } from './Utils.jsx';
+import { paramsWindSpeed, paramsWindDirection, paramsCloudCover } from './ApiCall.js';
+
+const Render = () => {
+    return (
+        <>hello div</>
+    );
+}
+
+function showWindSpeed(ptrWindHr) {
+    let sum = 0;
+    for (let param of paramsWindSpeed) {
+        console.log(ptrWindHr[param])
+        sum += ptrWindHr[param];
+    }
+    const average = sum / paramsWindSpeed.length;
+    return Math.round(average);
+}
 
 export function FrontPage({ rows, date, time }) {
-    const dayLightSaving = 22;
-    window.r = rows
+    const [ptrWindHr, setPtrWindHr] = useState(null);
+
+    useEffect(() => {
+        if (rows && date && time && rows[date] && rows[date][time]) {
+            setPtrWindHr(rows[date][time]);
+        }
+    }, [rows, date, time]);
+
+    useEffect(() => {
+        window.r = rows;
+        window.d = date;
+        window.t = time;
+        window.ptr = ptrWindHr;
+    }, [rows, date, time, ptrWindHr]);
+
     return (
-        <div className='d-flex justify-content-start flex-row' >
-            <h1>Wind Tarifa</h1>
-            <p>{date}</p>
-            <br></br>
-            {rows[date] &&
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', margin: '0px 10px' }}>
-                    {
-                        [...Array(2)].map((_, i) =>
-                            <div key={i}>
-                                {time + i < 24 && showRow(rows[date][time + i])}
-                            </div>
-                        )
-                    }
-                </div>
-            }
+        <div>
+            <Render />
+            {ptrWindHr && <div id="wind-knts">{showWindSpeed(ptrWindHr)} knts</div>}
         </div>
-    )
+    );
 }
+
+
+// {ptrWindHr ? (
+//     <div>
+//         {Object.entries(ptrWindHr).map(([key, value]) => (
+//             <div key={key}>
+//                 <strong>{key}:</strong> {typeof value === 'object' ? JSON.stringify(value) : value.toString()}
+//             </div>
+//         ))}
+//     </div>
+// ) : (
+//     <div>Loading...</div>
+// )}

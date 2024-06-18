@@ -14,6 +14,10 @@ const params = {
 	// "forecast_days": 3
 };
 
+export const paramsWindSpeed = ["wind_speed_10m","wind_speed_80m", "wind_speed_180m"];
+export const paramsWindDirection = ["wind_direction_180m", "wind_direction_80m"];
+export const paramsCloudCover = ["cloud_cover", "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high"];
+
 const range = (start, stop, step) =>
 	Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
 

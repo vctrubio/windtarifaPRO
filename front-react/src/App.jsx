@@ -6,14 +6,10 @@ import ErrorPage from "./error-page.jsx";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
 
-
 function App() {
-  console.log('App.js')
   const [rows, setRows] = useState({});
   const [date, setDate] = useState(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }));
   const [time, setTime] = useState(new Date().getHours());
-
-  window.row = rows;
 
   const routes = [
     {
