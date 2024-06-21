@@ -1,9 +1,9 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding-top: 1em;
   text-align: center;
-  background-color: black;
+  background-color: rgb(98, 89, 89);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
