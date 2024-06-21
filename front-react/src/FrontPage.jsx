@@ -19,6 +19,7 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 90 degrees: avatar look full left
 270 degree: avatar look full right
 */
+
 const Render = ({ windDegree = 0 }) => {
     const mountRef = useRef(null);
 
@@ -39,6 +40,10 @@ const Render = ({ windDegree = 0 }) => {
         const light = new THREE.AmbientLight(0xffffff);
         scene.add(light);
 
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 1, 1); // Adjust position based on your scene's requirements
+        scene.add(directionalLight);
+        
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
