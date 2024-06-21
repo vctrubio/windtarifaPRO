@@ -6,8 +6,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const Render = () => {
     const mountRef = useRef(null);
-
     useEffect(() => {
+        const isMobile = window.innerWidth < 768; // Example breakpoint for mobile devices
+
+        //rendered
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(
             75,
@@ -16,16 +18,39 @@ const Render = () => {
             1000
         );
         const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+        if (isMobile) {
+            renderer.setSize(window.innerWidth, window.innerHeight * 0.6);
+        }
+        else{
+            renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+        }
         mountRef.current.appendChild(renderer.domElement);
+
+        //light
         const light = new THREE.AmbientLight(0xffffff); // Soft white light
         scene.add(light);
 
+        //load model
+        const textureLoader = new THREE.TextureLoader(); // Define textureLoader here
+        const texture = textureLoader.load('texture_0_albedo.jpg');
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
-            camera.position.set(0, 0, 1.4); // Adjust camera position as needed
+          
+            // const model = gltf.scene
+            // model.traverse((child) => {
+            //     if (child.isMesh) {
+            //         child.material.map = texture;
+            //         child.material.needsUpdate = true;
+            //     }
+            // });
 
+
+            if (isMobile) {
+                camera.position.set(0, 0, 1.6); // Further back for mobile devices
+            } else {
+                camera.position.set(0, 0, 1.4); // Closer for larger screens
+            }
             const animate = function () {
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
@@ -33,20 +58,15 @@ const Render = () => {
             animate();
         });
 
+
+
         // Resize event listener
         const onWindowResize = () => {
-            // Update camera aspect ratio and renderer size
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
-
-            // Optionally, adjust camera position or other elements to keep content centered
-
-            // Re-render the scene
             renderer.render(scene, camera);
         };
-
-        // Add event listener
         window.addEventListener('resize', onWindowResize);
 
         return () => {
@@ -85,9 +105,11 @@ export function FrontPage({ rows, date, time }) {
     }, [rows, date, time, ptrWindHr]);
 
     return (
-        <div style={{height: '100vh'}}>
+        <div style={{ height: '100vh' }}>
             <Render />
             {ptrWindHr && <div id="wind-knts">{showWindSpeed(ptrWindHr)} knts</div>}
+            <div>wind change next 3 hrs</div>
+            <div>wind direction: poniente o levante</div>
         </div>
     );
 }
