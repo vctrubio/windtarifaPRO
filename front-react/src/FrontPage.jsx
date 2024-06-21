@@ -44,6 +44,19 @@ const Render = ({ windDegree = 0 }) => {
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
 
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    // Clone the original mesh
+                    const outlineMesh = child.clone();
+                    // Scale it up a bit
+                    outlineMesh.scale.multiplyScalar(1);
+                    // Use a basic material with emissive color for the outline effect
+                    outlineMesh.material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+                    // Add the outline mesh to the scene
+                    scene.add(outlineMesh);
+                }
+            });
+            
             if (isMobile) {
                 camera.position.set(0, 0, 1.6);
             } else {
@@ -95,15 +108,19 @@ function showWindSpeed(ptrWindHr) {
 }
 
 function defineWindVector(windDegree) {
-    if (windDegree <= 70 && windDegree >= 0) {
+    // levante is between 70 and 90
+    if (windDegree <= 70 && windDegree >= 15) {
         windDegree = 70;
     }
     // Poniente is between 250 and 275
     else if (windDegree >= 280 && windDegree <= 360) {
         windDegree = 280;
     }
+    else if (windDegree <= 280 && windDegree <= 140) {
+        windDegree = 140;
+    }
     else {
-        windDegree = 0; // Set to 0 if not closer to either Levante or Poniente
+        windDegree = 2;
     }
 
     if (windDegree <= 280 && windDegree >= 250) {
@@ -150,7 +167,6 @@ export function FrontPage({ rows, date, time }) {
             }
 
             <div>wind change next 3 hrs</div>
-            <div>wind direction: poniente o levante</div>
         </div>
     );
 }
