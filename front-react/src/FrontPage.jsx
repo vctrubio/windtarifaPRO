@@ -4,6 +4,9 @@ import { paramsWindSpeed, paramsWindDirection, paramsCloudCover } from './ApiCal
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { gsap } from 'gsap';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 
 /* @param windDegree: 
@@ -12,12 +15,10 @@ import { gsap } from 'gsap';
 0 degree: avatar look front
 */
 
-
 /*
 90 degrees: avatar look full left
 270 degree: avatar look full right
 */
-
 const Render = ({ windDegree = 0 }) => {
     const mountRef = useRef(null);
 
@@ -38,45 +39,49 @@ const Render = ({ windDegree = 0 }) => {
         const light = new THREE.AmbientLight(0xffffff);
         scene.add(light);
 
-        const textureLoader = new THREE.TextureLoader();
-        const texture = textureLoader.load('texture_0_albedo.jpg');
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
 
+            const selectedObjects = [];
             gltf.scene.traverse((child) => {
                 if (child.isMesh) {
-                    // Clone the original mesh
-                    const outlineMesh = child.clone();
-                    // Scale it up a bit
-                    outlineMesh.scale.multiplyScalar(1);
-                    // Use a basic material with emissive color for the outline effect
-                    outlineMesh.material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-                    // Add the outline mesh to the scene
-                    scene.add(outlineMesh);
+                    selectedObjects.push(child);
                 }
             });
-            
+
             if (isMobile) {
                 camera.position.set(0, 0, 1.6);
             } else {
                 camera.position.set(0, 0, 1.4);
             }
 
-            // Animate model rotation based on wind degree
             const updateModelRotation = () => {
                 const windRadians = windDegree * (Math.PI / 180);
                 gsap.to(gltf.scene.rotation, {
-                    duration: 2.5, // Duration of the animation in seconds
-                    y: windRadians, // Target rotation in radians
-                    ease: "power1.inOut", // Easing function for the animation
+                    duration: 2.5,
+                    y: windRadians,
+                    ease: "power1.inOut",
                 });
             };
-            updateModelRotation(); // Call it to apply initial rotation
+            updateModelRotation();
+
+            const composer = new EffectComposer(renderer);
+            const renderPass = new RenderPass(scene, camera);
+
+            composer.addPass(renderPass);
+
+            const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+            outlinePass.edgeStrength = 2;
+            outlinePass.edgeGlow = 0.7;
+            outlinePass.edgeThickness = 1.5;
+            outlinePass.visibleEdgeColor.set('#ffffff');
+            outlinePass.selectedObjects = selectedObjects;
+            composer.addPass(outlinePass);
 
             const animate = function () {
                 requestAnimationFrame(animate);
-                renderer.render(scene, camera);
+                composer.render();
             };
             animate();
         });
@@ -84,8 +89,8 @@ const Render = ({ windDegree = 0 }) => {
         const onWindowResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
-            renderer.render(scene, camera);
+            renderer.setSize(window.innerWidth, isMobile ? window.innerHeight * 0.6 : window.innerHeight * 0.8);
+            composer.setSize(window.innerWidth, window.innerHeight);
         };
         window.addEventListener('resize', onWindowResize);
 
@@ -93,15 +98,16 @@ const Render = ({ windDegree = 0 }) => {
             window.removeEventListener('resize', onWindowResize);
             mountRef.current.removeChild(renderer.domElement);
         };
-    }, [windDegree]); // Depend on windDegree to re-render when it changes
+    }, [windDegree]);
 
     return <div ref={mountRef}></div>;
 };
 
 
-function showWindSpeed(ptrWindHr) {
+
+function getWindSpeedNow(ptrWindHr) {
     let sum = 0;
-    for (let param of paramsWindSpeed) 
+    for (let param of paramsWindSpeed)
         sum += ptrWindHr[param];
     const average = sum / paramsWindSpeed.length;
     return Math.round(average);
@@ -120,7 +126,7 @@ function defineWindVector(windDegree) {
         windDegree = 140;
     }
     else {
-        windDegree = 2;
+        windDegree = 8;
     }
 
     if (windDegree <= 280 && windDegree >= 250) {
@@ -135,6 +141,38 @@ function getWindDegree(ptrWindHr) {
         sum += ptrWindHr[param];
     const average = sum / paramsWindDirection.length;
     return (defineWindVector(average))
+}
+
+function getWindChange(rows, date, time) {
+    try {
+        let sum = 0;
+        let count = 0;
+        for (let i = 1; i <= 3; i++) {
+            if (rows[date] && rows[date][time + i]) {
+                for (let param of paramsWindSpeed) {
+                    sum += rows[date][time + i][param];
+                }
+                count++;
+            }
+        }
+        const average = sum / (paramsWindSpeed.length * count);
+        return Math.round(average);
+    } catch (error) {
+        // no +3 hours in the day
+        return null; 
+    }
+}
+
+function getWindName(ptrWindHr){
+    const windDirection = getWindDegree(ptrWindHr);
+    if (windDirection >= 35 && windDirection <= 100)
+        return 'levante' //east
+    else if (windDirection >= 100 && windDirection <= 175)
+        return 'north'
+    else if (windDirection >= 175 && windDirection <= 320)
+        return 'poniente' //west
+    else
+        return 'south'
 }
 
 export function FrontPage({ rows, date, time }) {
@@ -159,14 +197,14 @@ export function FrontPage({ rows, date, time }) {
                 ptrWindHr ? (
                     <>
                         <Render windDegree={getWindDegree(ptrWindHr)} />
-                        <div id="wind-knts">{showWindSpeed(ptrWindHr)} knts</div>
+                        <div id="wind-knts">{getWindSpeedNow(ptrWindHr)} knts</div>
+                        <div>{getWindChange(rows, date, time) - getWindSpeedNow(ptrWindHr)} : wind change next 3 hrs</div>
+                        <div>{getWindName(ptrWindHr)} : wind direction</div>
                     </>
                 ) : (
                     <div></div>
                 )
             }
-
-            <div>wind change next 3 hrs</div>
         </div>
     );
 }
