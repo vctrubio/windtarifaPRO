@@ -1,12 +1,10 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
   padding-top: 1em;
   text-align: center;
-  background-color: rgb(98, 89, 89);
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background-color: none;
+  font-family: Monaco;
 }
 
 #wind-knts{
-  width: 100%;
+  font-size: 48px;
 }

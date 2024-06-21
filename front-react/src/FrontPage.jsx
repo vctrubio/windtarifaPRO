@@ -9,9 +9,14 @@ const Render = () => {
 
     useEffect(() => {
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({alpha: true});
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / (window.innerHeight),
+            0.1,
+            1000
+        );
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
         mountRef.current.appendChild(renderer.domElement);
         const light = new THREE.AmbientLight(0xffffff); // Soft white light
         scene.add(light);
@@ -19,7 +24,7 @@ const Render = () => {
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
-            camera.position.set(0, 0, 1); // Adjust camera position as needed
+            camera.position.set(0, 0, 1.4); // Adjust camera position as needed
 
             const animate = function () {
                 requestAnimationFrame(animate);
@@ -27,6 +32,22 @@ const Render = () => {
             };
             animate();
         });
+
+        // Resize event listener
+        const onWindowResize = () => {
+            // Update camera aspect ratio and renderer size
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+
+            // Optionally, adjust camera position or other elements to keep content centered
+
+            // Re-render the scene
+            renderer.render(scene, camera);
+        };
+
+        // Add event listener
+        window.addEventListener('resize', onWindowResize);
 
         return () => {
             mountRef.current.removeChild(renderer.domElement);
@@ -64,7 +85,7 @@ export function FrontPage({ rows, date, time }) {
     }, [rows, date, time, ptrWindHr]);
 
     return (
-        <div>
+        <div style={{height: '100vh'}}>
             <Render />
             {ptrWindHr && <div id="wind-knts">{showWindSpeed(ptrWindHr)} knts</div>}
         </div>
