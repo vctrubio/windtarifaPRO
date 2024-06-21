@@ -3,54 +3,59 @@ import { showRow } from './Utils.jsx';
 import { paramsWindSpeed, paramsWindDirection, paramsCloudCover } from './ApiCall.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { gsap } from 'gsap';
+
+
+/* @param windDegree: 
+85 degrees: avatar look full left
+-85 degree: avatar look full right
+0 degree: avatar look front
+*/
 
 const Render = () => {
     const mountRef = useRef(null);
-    useEffect(() => {
-        const isMobile = window.innerWidth < 768; // Example breakpoint for mobile devices
+    const [windDegree, setWindDegree] = useState(-10); // Example: 0 degrees
 
-        //rendered
+    useEffect(() => {
+        const isMobile = window.innerWidth < 768;
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(
             75,
-            window.innerWidth / (window.innerHeight),
+            window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
         const renderer = new THREE.WebGLRenderer({ alpha: true });
-        if (isMobile) {
-            renderer.setSize(window.innerWidth, window.innerHeight * 0.6);
-        }
-        else{
-            renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
-        }
+        renderer.setSize(window.innerWidth, isMobile ? window.innerHeight * 0.6 : window.innerHeight * 0.8);
         mountRef.current.appendChild(renderer.domElement);
 
-        //light
-        const light = new THREE.AmbientLight(0xffffff); // Soft white light
+        const light = new THREE.AmbientLight(0xffffff);
         scene.add(light);
 
-        //load model
-        const textureLoader = new THREE.TextureLoader(); // Define textureLoader here
+        const textureLoader = new THREE.TextureLoader();
         const texture = textureLoader.load('texture_0_albedo.jpg');
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
-          
-            // const model = gltf.scene
-            // model.traverse((child) => {
-            //     if (child.isMesh) {
-            //         child.material.map = texture;
-            //         child.material.needsUpdate = true;
-            //     }
-            // });
-
-
+        
             if (isMobile) {
-                camera.position.set(0, 0, 1.6); // Further back for mobile devices
+                camera.position.set(0, 0, 1.6);
             } else {
-                camera.position.set(0, 0, 1.4); // Closer for larger screens
+                camera.position.set(0, 0, 1.4);
             }
+        
+            // Animate model rotation based on wind degree
+            const updateModelRotation = () => {
+                const windRadians = windDegree * (Math.PI / 180);
+                gsap.to(gltf.scene.rotation, {
+                    duration: 1, // Duration of the animation in seconds
+                    y: windRadians, // Target rotation in radians
+                    ease: "power1.inOut", // Easing function for the animation
+                });
+            };
+            updateModelRotation(); // Call it to apply initial rotation
+        
             const animate = function () {
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
@@ -58,9 +63,6 @@ const Render = () => {
             animate();
         });
 
-
-
-        // Resize event listener
         const onWindowResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -70,9 +72,10 @@ const Render = () => {
         window.addEventListener('resize', onWindowResize);
 
         return () => {
+            window.removeEventListener('resize', onWindowResize);
             mountRef.current.removeChild(renderer.domElement);
         };
-    }, []);
+    }, [windDegree]); // Depend on windDegree to re-render when it changes
 
     return <div ref={mountRef}></div>;
 };
