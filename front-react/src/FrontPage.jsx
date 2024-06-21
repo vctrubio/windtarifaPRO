@@ -40,10 +40,10 @@ const Render = ({ windDegree = 0 }) => {
         const light = new THREE.AmbientLight(0xffffff);
         scene.add(light);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(0, 1, 1); // Adjust position based on your scene's requirements
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+        directionalLight.position.set(0, 0, 5); // Adjust position based on your scene's requirements
         scene.add(directionalLight);
-        
+
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
