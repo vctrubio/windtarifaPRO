@@ -12,9 +12,14 @@ import { gsap } from 'gsap';
 0 degree: avatar look front
 */
 
-const Render = () => {
+
+/*
+90 degrees: avatar look full left
+270 degree: avatar look full right
+*/
+
+const Render = ({ windDegree = 0 }) => {
     const mountRef = useRef(null);
-    const [windDegree, setWindDegree] = useState(-10); // Example: 0 degrees
 
     useEffect(() => {
         const isMobile = window.innerWidth < 768;
@@ -38,24 +43,24 @@ const Render = () => {
         const loader = new GLTFLoader();
         loader.load('windLogo', (gltf) => {
             scene.add(gltf.scene);
-        
+
             if (isMobile) {
                 camera.position.set(0, 0, 1.6);
             } else {
                 camera.position.set(0, 0, 1.4);
             }
-        
+
             // Animate model rotation based on wind degree
             const updateModelRotation = () => {
                 const windRadians = windDegree * (Math.PI / 180);
                 gsap.to(gltf.scene.rotation, {
-                    duration: 1, // Duration of the animation in seconds
+                    duration: 2.5, // Duration of the animation in seconds
                     y: windRadians, // Target rotation in radians
                     ease: "power1.inOut", // Easing function for the animation
                 });
             };
             updateModelRotation(); // Call it to apply initial rotation
-        
+
             const animate = function () {
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
@@ -83,12 +88,36 @@ const Render = () => {
 
 function showWindSpeed(ptrWindHr) {
     let sum = 0;
-    for (let param of paramsWindSpeed) {
-        // console.log(ptrWindHr[param])
+    for (let param of paramsWindSpeed) 
         sum += ptrWindHr[param];
-    }
     const average = sum / paramsWindSpeed.length;
     return Math.round(average);
+}
+
+function defineWindVector(windDegree) {
+    if (windDegree <= 70 && windDegree >= 0) {
+        windDegree = 70;
+    }
+    // Poniente is between 250 and 275
+    else if (windDegree >= 280 && windDegree <= 360) {
+        windDegree = 280;
+    }
+    else {
+        windDegree = 0; // Set to 0 if not closer to either Levante or Poniente
+    }
+
+    if (windDegree <= 280 && windDegree >= 250) {
+        windDegree -= 360;
+    }
+    return windDegree
+}
+
+function getWindDegree(ptrWindHr) {
+    let sum = 0;
+    for (let param of paramsWindDirection)
+        sum += ptrWindHr[param];
+    const average = sum / paramsWindDirection.length;
+    return (defineWindVector(average))
 }
 
 export function FrontPage({ rows, date, time }) {
@@ -109,23 +138,19 @@ export function FrontPage({ rows, date, time }) {
 
     return (
         <div style={{ height: '100vh' }}>
-            <Render />
-            {ptrWindHr && <div id="wind-knts">{showWindSpeed(ptrWindHr)} knts</div>}
+            {
+                ptrWindHr ? (
+                    <>
+                        <Render windDegree={getWindDegree(ptrWindHr)} />
+                        <div id="wind-knts">{showWindSpeed(ptrWindHr)} knts</div>
+                    </>
+                ) : (
+                    <div></div>
+                )
+            }
+
             <div>wind change next 3 hrs</div>
             <div>wind direction: poniente o levante</div>
         </div>
     );
 }
-
-
-// {ptrWindHr ? (
-//     <div>
-//         {Object.entries(ptrWindHr).map(([key, value]) => (
-//             <div key={key}>
-//                 <strong>{key}:</strong> {typeof value === 'object' ? JSON.stringify(value) : value.toString()}
-//             </div>
-//         ))}
-//     </div>
-// ) : (
-//     <div>Loading...</div>
-// )}
