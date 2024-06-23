@@ -119,24 +119,24 @@ function getWindSpeedNow(ptrWindHr) {
 }
 
 function defineWindVector(windDegree) {
-    // levante is between 70 and 90
-    if (windDegree <= 70 && windDegree >= 15) {
-        windDegree = 70;
-    }
-    // Poniente is between 250 and 275
-    else if (windDegree >= 280 && windDegree <= 360) {
-        windDegree = 280;
-    }
-    else if (windDegree <= 280 && windDegree <= 140) {
-        windDegree = 140;
-    }
-    else {
-        windDegree = 8;
-    }
+    // // levante is between 70 and 90
+    // if (windDegree <= 70 && windDegree >= 15) {
+    //     windDegree = 70;
+    // }
+    // // Poniente is between 250 and 275
+    // else if (windDegree >= 280 && windDegree <= 360) {
+    //     windDegree = 280;
+    // }
+    // else if (windDegree <= 280 && windDegree >= 140) {
+    //     windDegree = 140;
+    // }
+    // else {
+    //     windDegree = 8;
+    // }
 
-    if (windDegree <= 280 && windDegree >= 250) {
-        windDegree -= 360;
-    }
+    // if (windDegree <= 280 && windDegree >= 250) {
+    //     windDegree -= 360;
+    // }
     return windDegree
 }
 
@@ -145,6 +145,8 @@ function getWindDegree(ptrWindHr) {
     for (let param of paramsWindDirection)
         sum += ptrWindHr[param];
     const average = sum / paramsWindDirection.length;
+    console.log('wind degree: ', average)
+    console.log('wind vector: ', defineWindVector(average))
     return (defineWindVector(average))
 }
 
