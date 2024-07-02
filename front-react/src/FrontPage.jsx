@@ -137,6 +137,9 @@ function defineWindVector(windDegree) {
     // if (windDegree <= 280 && windDegree >= 250) {
     //     windDegree -= 360;
     // }
+    if (windDegree >= 180) {
+        windDegree -= 180;
+    }
     return windDegree
 }
 
